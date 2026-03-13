@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compass Voice Brief</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+    <main class="app">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Cloudflare Agents + Workflows</p>
+          <h1>Compass Voice Brief</h1>
+          <p class="subtitle">
+            Speak or type to create an action-ready brief, powered by Llama 3.3 and a durable memory that
+            stays with your session.
+          </p>
+        </div>
+        <div class="status" id="connectionStatus">
+          <span class="status-dot"></span>
+          <span>Connecting to agent¡­</span>
+        </div>
+      </header>
+
+      <section class="panels">
+        <section class="panel chat" aria-label="Chat panel">
+          <div class="panel-header">
+            <h2>Live Chat</h2>
+            <div class="pill">Voice-ready</div>
+          </div>
+          <div class="chat-log" id="chatLog">
+            <div class="chat-message assistant">
+              <div class="bubble">
+                I can turn a voice note into a structured brief. Tell me what you are working on.
+              </div>
+            </div>
+          </div>
+          <form class="composer" id="chatForm">
+            <div class="field-row">
+              <label>
+                Display name
+                <input id="displayName" type="text" placeholder="Guest" />
+              </label>
+              <label>
+                Tone
+                <select id="tone">
+                  <option value="concise">Concise</option>
+                  <option value="friendly">Friendly</option>
+                  <option value="structured">Structured</option>
+                  <option value="insightful">Insightful</option>
+                </select>
+              </label>
+            </div>
+            <label class="stretch">
+              Message
+              <textarea id="messageInput" rows="3" placeholder="Type a goal or hold the mic to dictate..."></textarea>
+            </label>
+            <div class="actions">
+              <button type="button" class="ghost" id="voiceBtn">Hold to talk</button>
+              <button type="submit" class="primary">Send</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel memory" aria-label="Memory panel">
+          <div class="panel-header">
+            <h2>Memory & Workflow</h2>
+            <div class="pill">State sync</div>
+          </div>
+
+          <div class="memory-card">
+            <h3>Agent Memory</h3>
+            <div class="memory-grid">
+              <div>
+                <span class="label">Profile</span>
+                <div id="profileView" class="value">Loading¡­</div>
+              </div>
+              <div>
+                <span class="label">Last Updated</span>
+                <div id="updatedView" class="value">¡ª</div>
+              </div>
+            </div>
+            <div>
+              <span class="label">Recent Context</span>
+              <div id="historyView" class="value muted">¡ª</div>
+            </div>
+          </div>
+
+          <div class="memory-card">
+            <h3>Brief Workflow</h3>
+            <p class="muted" id="workflowStatus">Idle</p>
+            <label>
+              Brief topic
+              <textarea id="briefInput" rows="3" placeholder="Example: Launching a community newsletter"></textarea>
+            </label>
+            <label>
+              Goal (optional)
+              <input id="briefGoal" type="text" placeholder="Example: Grow to 1,000 subscribers" />
+            </label>
+            <button class="secondary" id="briefBtn">Generate brief</button>
+            <div class="brief-output" id="briefOutput"></div>
+          </div>
+        </section>
+      </section>
+
+      <footer class="footer">
+        <span>Uses Durable Objects for memory, Workflows for multi-step planning, and Workers AI for LLM calls.</span>
+      </footer>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cf-ai-voice-brief",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-03-13",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "public",
+    "binding": "ASSETS"
+  },
+  "ai": {
+    "binding": "AI",
+    "remote": true
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CompassAgent",
+        "class_name": "CompassAgent"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["CompassAgent"]
+    }
+  ],
+  "workflows": [
+    {
+      "name": "brief-workflow",
+      "binding": "BRIEF_WORKFLOW",
+      "class_name": "BriefWorkflow"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
