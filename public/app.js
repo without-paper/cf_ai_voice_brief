@@ -51,20 +51,20 @@ function addMessage(role, text) {
 function renderState(state) {
   if (!state) return;
   const profile = state.profile || {};
-  profileView.textContent = `${profile.displayName ?? "Guest"} ， ${profile.tone ?? "concise"} ， ${
+  profileView.textContent = `${profile.displayName ?? "Guest"} - ${profile.tone ?? "concise"} - ${
     profile.locale ?? "en-GB"
   }`;
 
   updatedView.textContent = state.lastUpdatedAt
     ? new Date(state.lastUpdatedAt).toLocaleString()
-    : "！";
+    : "-";
 
   const recent = (state.history || []).slice(-3).map((item) => item.content).join(" / ");
-  historyView.textContent = recent || "！";
+  historyView.textContent = recent || "-";
 
   if (state.workflow) {
     const wf = state.workflow;
-    workflowStatus.textContent = `${wf.status ?? "idle"}${wf.message ? ` ， ${wf.message}` : ""}`;
+    workflowStatus.textContent = `${wf.status ?? "idle"}${wf.message ? ` - ${wf.message}` : ""}`;
   }
 
   if (state.lastBrief) {
@@ -126,7 +126,7 @@ briefBtn.addEventListener("click", async () => {
   if (!topic) return;
   const goal = briefGoal.value.trim();
 
-  workflowStatus.textContent = "Starting workflow´";
+  workflowStatus.textContent = "Starting workflow...";
 
   try {
     await client.call("startBriefWorkflow", [
@@ -174,5 +174,9 @@ if (!SpeechRecognition) {
   voiceBtn.addEventListener("touchend", stopRecording);
 }
 
-setStatus("Connecting to agent´", false);
+setStatus("Connecting to agent...", false);
+
+
+
+
 

@@ -15,30 +15,8 @@ An AI-powered Cloudflare Agents app that turns chat or voice notes into structur
 - `src\workflow.ts`: Workflow steps that generate the outline and brief.
 - `public\app.js`: Voice + chat UI and AgentClient wiring.
 
-## Running locally
-
-### 1) Install dependencies
+## Run
 
 ```
-npm install
-```
-
-### 2) Start local dev
-
-```
-npm run dev
-```
-
-Wrangler will start the Worker locally (http://127.0.0.1:8787). Workers AI runs remotely via the `ai.remote: true` binding in `wrangler.jsonc`. Workflows require local dev and are **not** supported with `wrangler dev --remote`, so keep the default local mode (Wrangler v3.89.0+ recommended).
-
-### 3) Try the app
-
-- Open the URL from Wrangler (usually http://127.0.0.1:8787).
-- Type a message or hold the mic button to dictate.
-- Click **Generate brief** to start a Workflow and watch the memory panel update.
-
-## Deploy
-
-```
-npm run deploy
+npx wrangler deploy
 ```
