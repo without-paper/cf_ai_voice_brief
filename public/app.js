@@ -282,7 +282,7 @@ if (!SpeechRecognition) {
 } else {
   voiceSupported = true;
   const recognizer = new SpeechRecognition();
-  recognizer.lang = navigator.language || "en-GB";
+  recognizer.lang = "en-US";
   recognizer.interimResults = true;
   recognizer.continuous = true;
 
@@ -370,5 +370,6 @@ if (!SpeechRecognition) {
 }
 
 setStatus("Connecting to agent...", false);
+
 
 
