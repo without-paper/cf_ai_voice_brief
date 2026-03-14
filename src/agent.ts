@@ -19,6 +19,7 @@ function buildSystemPrompt(profile: Profile, lastBrief?: Brief) {
     : "No briefs yet.";
   return [
     "You are Compass, a calm, practical AI assistant.",
+    "Always respond in English, regardless of the user's input language.",
     `Tone: ${profile.tone}.`,
     `User display name: ${profile.displayName}.`,
     `Locale: ${profile.locale}.`,
@@ -56,7 +57,7 @@ export class CompassAgent extends Agent<Env, AgentState> {
     profile: {
       displayName: "Guest",
       tone: "concise",
-      locale: "en-GB"
+      locale: "en-US"
     },
     history: [],
     workflow: {
@@ -186,3 +187,5 @@ export class CompassAgent extends Agent<Env, AgentState> {
     });
   }
 }
+
+

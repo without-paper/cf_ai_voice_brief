@@ -33,7 +33,7 @@ export class BriefWorkflow extends AgentWorkflow<CompassAgent, BriefInput, Workf
           {
             role: "system",
             content:
-              "You create compact outlines for action briefs. Return 4-6 bullets, no extra prose."
+              "You create compact outlines for action briefs. Return 4-6 bullets, no extra prose. Write in English."
           },
           {
             role: "user",
@@ -59,7 +59,7 @@ export class BriefWorkflow extends AgentWorkflow<CompassAgent, BriefInput, Workf
           {
             role: "system",
             content:
-              "You write a short, structured action brief with sections: Summary, Key Moves, Risks, Next Step."
+              "You write a short, structured action brief with sections: Summary, Key Moves, Risks, Next Step. Write in English."
           },
           {
             role: "user",
@@ -129,5 +129,6 @@ type WorkflowStep = {
   reportComplete: (progress: WorkflowStatus) => Promise<void>;
   sendEvent: (event: { type: string; payload?: Brief }) => Promise<void>;
 };
+
 
 
