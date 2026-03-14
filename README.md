@@ -21,3 +21,13 @@ An AI-powered Cloudflare Agents app that turns chat or voice notes into structur
 npx wrangler deploy
 ```
 and open the link https://cf-ai-voice-brief.[username].workers.dev
+
+## Technology Stack
+
+- Cloudflare Workers + Workers AI (Llama 3.3) for serverless LLM inference
+- Cloudflare Agents SDK with Durable Objects for stateful agent memory
+- Cloudflare Workflows for multi‑step AI coordination (outline + brief pipeline)
+- Cloudflare Pages/Workers static assets for the UI
+- TypeScript for backend logic and shared types
+- Vanilla JavaScript + Web Speech API for chat + voice input
+- Wrangler CLI for local dev and deployment
