@@ -40,5 +40,5 @@ export type Env = {
   AI: Ai;
   ASSETS: Fetcher;
   CompassAgent: DurableObjectNamespace;
-  BRIEF_WORKFLOW: unknown;
+  BRIEF_WORKFLOW: Workflow;
 };

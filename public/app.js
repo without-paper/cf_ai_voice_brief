@@ -9,6 +9,7 @@ const messageInput = document.getElementById("messageInput");
 const displayNameInput = document.getElementById("displayName");
 const toneInput = document.getElementById("tone");
 const voiceBtn = document.getElementById("voiceBtn");
+const sendBtn = document.querySelector("#chatForm button.primary");
 
 const profileView = document.getElementById("profileView");
 const updatedView = document.getElementById("updatedView");
@@ -27,12 +28,21 @@ const sessionId = (() => {
   return fresh;
 })();
 
+let isConnected = false;
+let voiceSupported = false;
+
 function setStatus(text, connected) {
   statusEl.querySelector("span:last-child").textContent = text;
   statusDot.style.background = connected ? "#2fbf71" : "#f29f3f";
   statusDot.style.boxShadow = connected
     ? "0 0 0 6px rgba(47, 191, 113, 0.25)"
     : "0 0 0 6px rgba(242, 159, 63, 0.25)";
+}
+
+function setControlsEnabled(enabled) {
+  if (sendBtn) sendBtn.disabled = !enabled;
+  if (briefBtn) briefBtn.disabled = !enabled;
+  if (voiceSupported && voiceBtn) voiceBtn.disabled = !enabled;
 }
 
 function addMessage(role, text) {
@@ -91,9 +101,24 @@ const client = new AgentClient({
   onStateUpdate: (state) => renderState(state)
 });
 
-client.addEventListener("open", () => setStatus("Connected", true));
-client.addEventListener("close", () => setStatus("Disconnected", false));
-client.addEventListener("error", () => setStatus("Connection error", false));
+setControlsEnabled(false);
+
+client.addEventListener("open", () => {
+  isConnected = true;
+  setStatus("Connected", true);
+  setControlsEnabled(true);
+});
+client.addEventListener("close", () => {
+  isConnected = false;
+  setStatus("Disconnected", false);
+  setControlsEnabled(false);
+});
+client.addEventListener("error", (event) => {
+  isConnected = false;
+  console.error("Agent connection error:", event);
+  setStatus("Connection error", false);
+  setControlsEnabled(false);
+});
 
 chatForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -102,6 +127,11 @@ chatForm.addEventListener("submit", async (event) => {
 
   addMessage("user", message);
   messageInput.value = "";
+
+  if (!isConnected) {
+    addMessage("assistant", "Not connected yet. Please wait a moment and try again.");
+    return;
+  }
 
   try {
     const response = await client.call("chat", [
@@ -117,16 +147,24 @@ chatForm.addEventListener("submit", async (event) => {
       addMessage("assistant", response.reply);
     }
   } catch (error) {
-    addMessage("assistant", "Something went wrong sending that message. Try again.");
+    console.error("Chat RPC failed:", error);
+    const errorMessage = error?.message ?? String(error);
+    addMessage("assistant", `Chat error: ${errorMessage}`);
   }
 });
 
-briefBtn.addEventListener("click", async () => {
+briefBtn.addEventListener("click", async (event) => {
+  event.preventDefault();
   const topic = briefInput.value.trim();
   if (!topic) return;
   const goal = briefGoal.value.trim();
 
   workflowStatus.textContent = "Starting workflow...";
+
+  if (!isConnected) {
+    workflowStatus.textContent = "Not connected yet. Please wait and try again.";
+    return;
+  }
 
   try {
     await client.call("startBriefWorkflow", [
@@ -137,7 +175,9 @@ briefBtn.addEventListener("click", async () => {
       }
     ]);
   } catch (error) {
-    workflowStatus.textContent = "Unable to start workflow.";
+    console.error("Workflow RPC failed:", error);
+    const errorMessage = error?.message ?? String(error);
+    workflowStatus.textContent = `Workflow error: ${errorMessage}`;
   }
 });
 
@@ -146,6 +186,7 @@ if (!SpeechRecognition) {
   voiceBtn.textContent = "Voice unsupported";
   voiceBtn.disabled = true;
 } else {
+  voiceSupported = true;
   const recognizer = new SpeechRecognition();
   recognizer.lang = navigator.language || "en-GB";
   recognizer.interimResults = true;
@@ -172,11 +213,9 @@ if (!SpeechRecognition) {
   voiceBtn.addEventListener("mouseup", stopRecording);
   voiceBtn.addEventListener("mouseleave", stopRecording);
   voiceBtn.addEventListener("touchend", stopRecording);
+
+  setControlsEnabled(isConnected);
 }
 
 setStatus("Connecting to agent...", false);
-
-
-
-
 
