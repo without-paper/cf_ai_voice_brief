@@ -97,6 +97,50 @@ function setBriefOutput(text) {
   briefOutput.appendChild(renderMarkdownToFragment(text));
 }
 
+function truncateText(text, maxLength) {
+  if (text.length <= maxLength) return text;
+  const clipped = text.slice(0, maxLength);
+  const lastSpace = clipped.lastIndexOf(" ");
+  const safeClip = lastSpace > 80 ? clipped.slice(0, lastSpace) : clipped;
+  return `${safeClip.trim()}...`;
+}
+
+function renderRecentContext(history) {
+  if (!historyView) return;
+  const items = (history || [])
+    .slice(-3)
+    .map((item) => item.content.trim())
+    .filter(Boolean);
+  const fullText = items.join(" / ");
+
+  historyView.innerHTML = "";
+
+  if (!fullText) {
+    historyView.textContent = "-";
+    return;
+  }
+
+  const preview = truncateText(fullText, 240);
+
+  if (preview === fullText) {
+    historyView.textContent = fullText;
+    return;
+  }
+
+  const details = document.createElement("details");
+  details.className = "context-details";
+
+  const summary = document.createElement("summary");
+  summary.textContent = `${preview} (show more)`;
+
+  const full = document.createElement("div");
+  full.className = "context-full";
+  full.textContent = fullText;
+
+  details.append(summary, full);
+  historyView.appendChild(details);
+}
+
 function addMessage(role, text) {
   const wrapper = document.createElement("div");
   wrapper.className = `chat-message ${role}`;
@@ -113,16 +157,13 @@ function addMessage(role, text) {
 function renderState(state) {
   if (!state) return;
   const profile = state.profile || {};
-  profileView.textContent = `${profile.displayName ?? "Guest"} - ${profile.tone ?? "concise"} - ${
-    profile.locale ?? "en-GB"
-  }`;
+  profileView.textContent = `${profile.displayName ?? "Guest"} - ${profile.tone ?? "concise"}`;
 
   updatedView.textContent = state.lastUpdatedAt
     ? new Date(state.lastUpdatedAt).toLocaleString()
     : "-";
 
-  const recent = (state.history || []).slice(-3).map((item) => item.content).join(" / ");
-  historyView.textContent = recent || "-";
+  renderRecentContext(state.history);
 
   if (state.workflow) {
     const wf = state.workflow;
@@ -192,7 +233,7 @@ chatForm.addEventListener("submit", async (event) => {
       {
         displayName: displayNameInput.value || "Guest",
         tone: toneInput.value,
-        locale: navigator.language
+        locale: "en-US"
       }
     ]);
 
@@ -243,29 +284,87 @@ if (!SpeechRecognition) {
   const recognizer = new SpeechRecognition();
   recognizer.lang = navigator.language || "en-GB";
   recognizer.interimResults = true;
+  recognizer.continuous = true;
+
+  let isRecording = false;
+  let isHolding = false;
+  let finalTranscript = "";
+
+  const updateTranscript = (interim = "") => {
+    const combined = `${finalTranscript}${interim}`.trim();
+    if (combined) {
+      messageInput.value = combined;
+    }
+  };
 
   recognizer.addEventListener("result", (event) => {
-    const transcript = Array.from(event.results)
-      .map((result) => result[0]?.transcript ?? "")
-      .join("");
-    messageInput.value = transcript;
+    let interimTranscript = "";
+    for (let i = event.resultIndex; i < event.results.length; i += 1) {
+      const result = event.results[i];
+      const text = result[0]?.transcript ?? "";
+      if (result.isFinal) {
+        finalTranscript += `${text} `;
+      } else {
+        interimTranscript += text;
+      }
+    }
+    updateTranscript(interimTranscript);
   });
 
-  const startRecording = () => {
+  recognizer.addEventListener("start", () => {
+    isRecording = true;
     voiceBtn.classList.add("recording");
-    recognizer.start();
-  };
+  });
 
-  const stopRecording = () => {
+  recognizer.addEventListener("end", () => {
+    isRecording = false;
     voiceBtn.classList.remove("recording");
-    recognizer.stop();
+    if (isHolding) {
+      setTimeout(() => {
+        if (!isRecording) {
+          try {
+            recognizer.start();
+          } catch (error) {
+            console.warn("Unable to restart speech recognition:", error);
+          }
+        }
+      }, 200);
+    }
+  });
+
+  recognizer.addEventListener("error", (event) => {
+    console.error("Speech recognition error:", event);
+  });
+
+  const startRecording = (event) => {
+    event.preventDefault();
+    if (!isConnected) {
+      addMessage("assistant", "Connect first, then hold the mic to speak.");
+      return;
+    }
+    isHolding = true;
+    if (!isRecording) {
+      try {
+        recognizer.start();
+      } catch (error) {
+        console.warn("Speech recognition start ignored:", error);
+      }
+    }
   };
 
-  voiceBtn.addEventListener("mousedown", startRecording);
-  voiceBtn.addEventListener("touchstart", startRecording);
-  voiceBtn.addEventListener("mouseup", stopRecording);
-  voiceBtn.addEventListener("mouseleave", stopRecording);
-  voiceBtn.addEventListener("touchend", stopRecording);
+  const stopRecording = (event) => {
+    event.preventDefault();
+    isHolding = false;
+    if (isRecording) {
+      recognizer.stop();
+    }
+  };
+
+  voiceBtn.addEventListener("pointerdown", startRecording);
+  voiceBtn.addEventListener("pointerup", stopRecording);
+  voiceBtn.addEventListener("pointercancel", stopRecording);
+  voiceBtn.addEventListener("pointerleave", stopRecording);
+  voiceBtn.addEventListener("click", (event) => event.preventDefault());
 
   setControlsEnabled(isConnected);
 }

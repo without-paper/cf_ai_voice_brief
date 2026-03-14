@@ -345,3 +345,33 @@ button.recording {
   color: var(--accent-cool);
   font-weight: 700;
 }
+
+.context-details {
+  border-radius: 12px;
+  background: #fff;
+  padding: 10px 12px;
+  border: 1px dashed rgba(31, 90, 102, 0.2);
+}
+
+.context-details summary {
+  cursor: pointer;
+  color: var(--accent-cool);
+  font-weight: 600;
+  outline: none;
+}
+
+.context-details summary::marker {
+  color: var(--accent-cool);
+}
+
+.context-full {
+  margin-top: 8px;
+  color: var(--muted);
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+#voiceBtn {
+  touch-action: none;
+  user-select: none;
+}
