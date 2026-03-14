@@ -9,6 +9,8 @@ An AI-powered Cloudflare Agents app that turns chat or voice notes into structur
 - **User input**: Browser UI supports chat plus voice dictation (Web Speech API) and connects over the Agents Client SDK.
 - **Memory / state**: The Agent persists profile, history, and last brief in durable state and syncs it to clients.
 
+![Demo](pic/demo.png)
+
 ## Key files
 
 - `src\agent.ts`: Agent logic, LLM calls, memory/state, workflow hooks.
