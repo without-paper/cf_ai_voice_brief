@@ -325,3 +325,23 @@ button.recording {
   color: var(--accent-strong);
   box-shadow: 0 0 0 6px rgba(242, 159, 63, 0.2);
 }
+
+.brief-output p {
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.brief-output ul {
+  margin: 6px 0 12px 18px;
+  padding: 0;
+}
+
+.brief-output li {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.brief-output strong {
+  color: var(--accent-cool);
+  font-weight: 700;
+}

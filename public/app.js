@@ -45,6 +45,58 @@ function setControlsEnabled(enabled) {
   if (voiceSupported && voiceBtn) voiceBtn.disabled = !enabled;
 }
 
+function escapeHtml(value) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function renderInlineMarkdown(text) {
+  const escaped = escapeHtml(text);
+  return escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
+
+function renderMarkdownToFragment(text) {
+  const fragment = document.createDocumentFragment();
+  const lines = String(text ?? "").split(/\r?\n/);
+  let list = null;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trimEnd();
+    if (!line.trim()) {
+      list = null;
+      continue;
+    }
+
+    if (/^[-*]\s+/.test(line)) {
+      if (!list) {
+        list = document.createElement("ul");
+        fragment.appendChild(list);
+      }
+      const li = document.createElement("li");
+      li.innerHTML = renderInlineMarkdown(line.replace(/^[-*]\s+/, ""));
+      list.appendChild(li);
+      continue;
+    }
+
+    list = null;
+    const p = document.createElement("p");
+    p.innerHTML = renderInlineMarkdown(line);
+    fragment.appendChild(p);
+  }
+
+  return fragment;
+}
+
+function setBriefOutput(text) {
+  if (!briefOutput) return;
+  briefOutput.innerHTML = "";
+  briefOutput.appendChild(renderMarkdownToFragment(text));
+}
+
 function addMessage(role, text) {
   const wrapper = document.createElement("div");
   wrapper.className = `chat-message ${role}`;
@@ -79,7 +131,7 @@ function renderState(state) {
 
   if (state.lastBrief) {
     const brief = state.lastBrief;
-    briefOutput.textContent = [
+    const outputText = [
       `Topic: ${brief.topic}`,
       brief.goal ? `Goal: ${brief.goal}` : null,
       "",
@@ -91,6 +143,7 @@ function renderState(state) {
     ]
       .filter(Boolean)
       .join("\n");
+    setBriefOutput(outputText);
   }
 }
 
@@ -218,4 +271,5 @@ if (!SpeechRecognition) {
 }
 
 setStatus("Connecting to agent...", false);
+
 
