@@ -17,6 +17,15 @@ An AI-powered Cloudflare Agents app that turns chat or voice notes into structur
 - `src\workflow.ts`: Workflow steps that generate the outline and brief.
 - `public\app.js`: Voice + chat UI and AgentClient wiring.
 
+## Live Demo
+
+You can try the application directly in your browser:
+
+https://cf-ai-voice-brief.xurongman2005.workers.dev
+
+The app works on any device (desktop or mobile).  
+All generated briefs are stored and will remain available even after refreshing the page.
+
 ## Deploy
 
 1. Clone the repository
